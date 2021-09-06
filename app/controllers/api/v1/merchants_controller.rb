@@ -6,4 +6,8 @@ class Api::V1::MerchantsController < ApplicationController
     page = page - 1 unless page == 0
     render json: MerchantSerializer.new(Merchant.offset(page * per_page).limit(per_page))
   end
+
+  def show
+    render json: MerchantSerializer.new(Merchant.find(params[:id]))
+  end
 end
