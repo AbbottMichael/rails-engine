@@ -87,8 +87,8 @@ describe 'Merchants API' do
     it 'sends back a single merchant, based on a name query' do
       param = 'super'
       get "/api/v1/merchants/find?name=#{param}"
-      merchant = JSON.parse(response.body, symbolize_names: true)
 
+      merchant = JSON.parse(response.body, symbolize_names: true)
       expect(merchant.count).to eq(1)
       expect(merchant[:data][:id]).to eq(@merchant2.id.to_s)
       expect(merchant[:data][:type]).to eq("merchant")
@@ -98,7 +98,7 @@ describe 'Merchants API' do
     it "sends back 'no matches' if no merchants are found"
 
     it 'parameter cannot be empty'
-    
+
     it 'parameter cannot be missing'
   end
 end
