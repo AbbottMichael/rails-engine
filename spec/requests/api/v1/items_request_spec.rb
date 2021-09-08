@@ -6,7 +6,7 @@ describe 'Items API' do
       @merchant = create(:merchant)
       @item1 = create(:item, name: 'Super stuff', merchant: @merchant)
       @item2 = create(:item, name: 'Stuff super', merchant: @merchant)
-      @item3 = create(:item, name: 'Superlicious', merchant: @merchant)
+      @item3 = create(:item, name: 'Asuperlicious', merchant: @merchant)
       @item4 = create(:item, name: 'Lame', merchant: @merchant)
       @item5 = create(:item, name: 'Lame too', merchant: @merchant)
     end
