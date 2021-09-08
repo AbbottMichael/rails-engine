@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'faker'
 
 describe 'Merchants API' do
   it 'sends a list of merchants' do
@@ -76,5 +75,30 @@ describe 'Merchants API' do
       expect(item[:attributes]).to have_key(:merchant_id)
       expect(item[:attributes][:merchant_id]).to eq(merchant.id)
     end
+  end
+
+  describe 'Find One merchant' do
+    before :each do
+      @merchant1 = create(:merchant, name: 'Superduper')
+      @merchant2 = create(:merchant, name: 'Dupersuper')
+      @merchant3 = create(:merchant, name: 'Kevin')
+    end
+
+    it 'sends back a single merchant, based on a name query' do
+      param = 'super'
+      get "/api/v1/merchants/find?name=#{param}"
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+      expect(merchant.count).to eq(1)
+      expect(merchant[:data][:id]).to eq(@merchant2.id.to_s)
+      expect(merchant[:data][:type]).to eq("merchant")
+      expect(merchant[:data][:attributes][:name]).to eq(@merchant2.name)
+    end
+
+    it "sends back 'no matches' if no merchants are found"
+
+    it 'parameter cannot be empty'
+
+    it 'parameter cannot be missing'
   end
 end
