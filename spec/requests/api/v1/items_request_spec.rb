@@ -17,11 +17,11 @@ describe 'Items API' do
       items = JSON.parse(response.body, symbolize_names: true)
 
       expect(items[:data].count).to eq(3)
-      expect(items[:data].any? {|x| x[:id] == @item1.id.to_s}).to eq(true)
-      expect(items[:data].any? {|x| x[:id] == @item2.id.to_s}).to eq(true)
-      expect(items[:data].any? {|x| x[:id] == @item3.id.to_s}).to eq(true)
-      expect(items[:data].any? {|x| x[:id] == @item4.id.to_s}).to eq(false)
-      expect(items[:data].any? {|x| x[:id] == @item5.id.to_s}).to eq(false)
+      expect(items[:data].any? {|item| item[:id] == @item1.id.to_s}).to eq(true)
+      expect(items[:data].any? {|item| item[:id] == @item2.id.to_s}).to eq(true)
+      expect(items[:data].any? {|item| item[:id] == @item3.id.to_s}).to eq(true)
+      expect(items[:data].any? {|item| item[:id] == @item4.id.to_s}).to eq(false)
+      expect(items[:data].any? {|item| item[:id] == @item5.id.to_s}).to eq(false)
     end
   end
 end
