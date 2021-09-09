@@ -124,6 +124,11 @@ describe 'Merchants API' do
     end
 
     it 'sends back a variable number of merchants ranked by total revenue' do
+      get "/api/v1/revenue/merchants?quantity=1"
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchants[:data].count).to eq(1)
+
       get "/api/v1/revenue/merchants?quantity=2"
       merchants = JSON.parse(response.body, symbolize_names: true)
 
@@ -140,6 +145,53 @@ describe 'Merchants API' do
         expect(merchant[:attributes][:name]).to be_a(String)
         expect(merchant[:attributes]).to have_key(:revenue)
         expect(merchant[:attributes][:revenue]).to be_a(Float)
+      end
+    end
+  end
+
+  describe 'Merchants with the most items' do
+    before :each do
+      @customer1 = create(:customer)
+      @merchant1 = create(:merchant)
+      @item1 = create(:item, merchant_id: @merchant1.id)
+      @invoice1 = create(:invoice, merchant_id: @merchant1.id, customer_id: @customer1.id)
+      create(:invoice_item, item_id: @item1.id, invoice_id: @invoice1.id)
+      create(:transaction, invoice_id: @invoice1.id)
+      @invoice2 = create(:invoice, merchant_id: @merchant1.id, customer_id: @customer1.id)
+      create(:invoice_item, item_id: @item1.id, invoice_id: @invoice2.id)
+      create(:transaction, invoice_id: @invoice2.id)
+      @merchant2 = create(:merchant)
+      @item2 = create(:item, merchant_id: @merchant2.id)
+      @invoice3 = create(:invoice, merchant_id: @merchant2.id, customer_id: @customer1.id)
+      create(:invoice_item, quantity: 200, item_id: @item2.id, invoice_id: @invoice3.id)
+      create(:transaction, invoice_id: @invoice3.id)
+      @invoice4 = create(:invoice, merchant_id: @merchant2.id, customer_id: @customer1.id)
+      create(:invoice_item, item_id: @item2.id, invoice_id: @invoice4.id)
+      create(:transaction, invoice_id: @invoice4.id)
+    end
+
+    it 'sends back a chosen number of merchants ranked by most items in descending order' do
+      get "/api/v1/merchants/most_items?quantity=1"
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchants[:data].count).to eq(1)
+
+      get "/api/v1/merchants/most_items?quantity=2"
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchants[:data].count).to eq(2)
+
+      merchants[:data].each do |merchant|
+        expect(merchant).to have_key(:id)
+        expect(merchant[:id]).to be_a(String)
+        expect(merchant).to have_key(:type)
+        expect(merchant[:type]).to eq('items_sold')
+        expect(merchant).to have_key(:attributes)
+        expect(merchant[:attributes]).to be_a(Hash)
+        expect(merchant[:attributes]).to have_key(:name)
+        expect(merchant[:attributes][:name]).to be_a(String)
+        expect(merchant[:attributes]).to have_key(:count)
+        expect(merchant[:attributes][:count]).to be_an(Integer)
       end
     end
   end
