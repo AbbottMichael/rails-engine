@@ -162,6 +162,35 @@ describe 'Items API' do
     end
   end
 
+  describe "destroy an item" do
+    before :each do
+      create(:merchant, id: 1)
+      create(:item, id: 10, merchant_id: 1)
+      create_list(:item, 9, merchant_id: 1)
+    end
+
+    it 'destroys the corresonding record and any associated data' do
+      expect(Item.count).to eq(10)
+
+      delete "/api/v1/items/10"
+
+      expect(response.status).to eq(204)
+      expect(Item.count).to eq(9)
+      expect(response.body).to eq("")
+    end
+
+    it 'returns an error if the item is not found' do
+      expect(Item.count).to eq(10)
+
+      delete "/api/v1/items/11"
+      body = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response.status).to eq(404)
+      expect(Item.count).to eq(10)
+      expect(body[:error]).to eq("record can not be found")
+    end
+  end
+
   describe 'Find all items' do
     before :each do
       @merchant = create(:merchant)
