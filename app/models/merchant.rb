@@ -9,7 +9,7 @@ class Merchant < ApplicationRecord
   end
 
   def self.total_revenue_desc(merchant_count)
-    joins(invoices: [:transactions, :invoice_items])
+    joins(items: { invoice_items: { invoice: :transactions }})
     .where('invoices.status = ?', 'shipped')
     .where('transactions.result = ?', 'success')
     .select('sum(invoice_items.quantity * invoice_items.unit_price) AS revenue')
@@ -20,13 +20,13 @@ class Merchant < ApplicationRecord
   end
 
   def self.total_items_sold_desc(merchant_count)
-    joins(invoices: [:transactions, :invoice_items])
+    joins(items: { invoice_items: { invoice: :transactions }})
     .where('invoices.status = ?', 'shipped')
     .where('transactions.result = ?', 'success')
     .select('sum(invoice_items.quantity) AS count')
     .select('merchants.id', 'merchants.name')
     .group('merchants.id')
-    .order(count: :desc)
+    .order('count DESC')
     .limit(merchant_count)
   end
 end
