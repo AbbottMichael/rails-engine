@@ -31,27 +31,31 @@ describe 'Items API' do
     end
   end
 
-  xit 'sends the data of a single merchant by id' do
-    create_list(:merchant, 40)
+  it 'sends the data of a single item by id' do
+    create(:merchant, id: 1)
+    create_list(:item, 25, merchant_id: 1)
 
-    get "/api/v1/merchants/#{Merchant.first.id}"
+    get "/api/v1/items/#{Item.first.id}"
 
     expect(response).to be_successful
 
-    merchants = JSON.parse(response.body, symbolize_names: true)
+    item = JSON.parse(response.body, symbolize_names: true)
 
-    expect(merchants.count).to eq(1)
+    expect(item.count).to eq(1)
 
-    expect(merchants[:data]).to have_key(:id)
-    expect(merchants[:data][:id]).to be_a(String)
-    expect(merchants[:data][:id]).to eq(Merchant.first.id.to_s)
-    expect(merchants[:data]).to have_key(:type)
-    expect(merchants[:data][:type]).to be_a(String)
-    expect(merchants[:data]).to have_key(:attributes)
-    expect(merchants[:data][:attributes]).to be_a(Hash)
-    expect(merchants[:data][:attributes]).to have_key(:name)
-    expect(merchants[:data][:attributes][:name]).to be_a(String)
-    expect(merchants[:data][:attributes][:name]).to eq(Merchant.first.name)
+    expect(item[:data]).to have_key(:id)
+    expect(item[:data][:id]).to be_a(String)
+    expect(item[:data][:id]).to eq(Item.first.id.to_s)
+    expect(item[:data]).to have_key(:type)
+    expect(item[:data][:type]).to eq('item')
+    expect(item[:data]).to have_key(:attributes)
+    expect(item[:data][:attributes]).to be_a(Hash)
+    expect(item[:data][:attributes]).to have_key(:name)
+    expect(item[:data][:attributes][:name]).to be_a(String)
+    expect(item[:data][:attributes]).to have_key(:description)
+    expect(item[:data][:attributes][:description]).to be_a(String)
+    expect(item[:data][:attributes]).to have_key(:unit_price)
+    expect(item[:data][:attributes][:unit_price]).to be_a(Float)
   end
 
   describe 'Find all items' do
