@@ -58,6 +58,80 @@ describe 'Items API' do
     expect(item[:data][:attributes][:unit_price]).to be_a(Float)
   end
 
+  describe 'Create an Item' do
+    before :each do
+      create(:merchant, id: 1)
+      create_list(:item, 10, merchant_id: 1)
+    end
+
+    it 'can create and render a JSON representation of the new Item record' do
+      expect(Item.count).to eq(10)
+
+      body = {
+        "name": "Name",
+        "description": "description body",
+        "unit_price": 100.99,
+        "merchant_id": 1
+      }
+      post '/api/v1/items', params: body
+
+      expect(response.status).to eq(201)
+      expect(Item.count).to eq(11)
+
+      new_item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(new_item[:data]).to have_key(:id)
+      expect(new_item[:data][:id]).to be_a(String)
+      expect(new_item[:data][:id]).to eq(Item.last.id.to_s)
+      expect(new_item[:data]).to have_key(:type)
+      expect(new_item[:data][:type]).to eq('item')
+      expect(new_item[:data]).to have_key(:attributes)
+      expect(new_item[:data][:attributes]).to be_a(Hash)
+      expect(new_item[:data][:attributes]).to have_key(:name)
+      expect(new_item[:data][:attributes][:name]).to be_a(String)
+      expect(new_item[:data][:attributes]).to have_key(:description)
+      expect(new_item[:data][:attributes][:description]).to be_a(String)
+      expect(new_item[:data][:attributes]).to have_key(:unit_price)
+      expect(new_item[:data][:attributes][:unit_price]).to be_a(Float)
+    end
+
+    it 'will return an error if any attribute is missing' do
+      expect(Item.count).to eq(10)
+
+      body = {
+        "name": "Name",
+        "unit_price": 100.99,
+        "merchant_id": 1
+      }
+      post '/api/v1/items', params: body
+
+      expect(response.status).to eq(406)
+      expect(Item.count).to eq(10)
+    end
+
+    it 'will ignore any attributes sent by the user which are not allowed' do
+      expect(Item.count).to eq(10)
+
+      body = {
+        "name":        "Name",
+        "description": "Description body",
+        "unit_price":   100.99,
+        "merchant_id":  1,
+        "extra_stuff": "Sooo extra"
+      }
+      post '/api/v1/items', params: body
+      new_item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response.status).to eq(201)
+      expect(Item.count).to eq(11)
+
+      expect(new_item[:data]).to_not have_key(:extra_stuff)
+      expect(new_item[:data]).to_not have_value("Sooo extra")
+      expect(new_item[:data][:attributes]).to_not have_key(:extra_stuff)
+      expect(new_item[:data][:attributes]).to_not have_value("Sooo extra")
+    end
+  end
+
   describe 'Find all items' do
     before :each do
       @merchant = create(:merchant)
