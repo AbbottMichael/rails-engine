@@ -132,6 +132,36 @@ describe 'Items API' do
     end
   end
 
+  describe 'Update an Item' do
+    before :each do
+      create(:merchant, id: 1)
+      create(:item, id: 1, merchant_id: 1, description: "Old description")
+    end
+
+    it 'updates the corresponding item with whichever valid attributes are provided by the user' do
+      body = { "description": "New description" }
+      patch "/api/v1/items/#{Item.first.id}", params: body
+
+      expect(response.status).to eq(202)
+
+      updated_item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(updated_item[:data][:id]).to eq("1")
+      expect(updated_item[:data][:attributes][:description]).to eq("New description")
+    end
+
+    it 'returns an error if the merchant is not found' do
+      body = { "description": "New description", "merchant_id": 2 }
+      patch "/api/v1/items/#{Item.first.id}", params: body
+
+      expect(response.status).to eq(404)
+
+      updated_item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(updated_item[:error]).to eq("merchant does not exist")
+    end
+  end
+
   describe 'Find all items' do
     before :each do
       @merchant = create(:merchant)
