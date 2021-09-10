@@ -8,6 +8,17 @@ class Merchant < ApplicationRecord
     # where("name iLIKE ?", "%#{name_query}%").order(:name).take
   end
 
+  def self.total_revenue_by_id(param_id)
+    joins(items: { invoice_items: { invoice: :transactions }})
+    .where('merchants.id = ?', param_id)
+    .where('invoices.status = ?', 'shipped')
+    .where('transactions.result = ?', 'success')
+    .select('sum(invoice_items.quantity * invoice_items.unit_price) AS revenue')
+    .select('merchants.id', 'merchants.name')
+    .group('merchants.id')
+    .take
+  end
+
   def self.total_revenue_desc(merchant_count)
     joins(items: { invoice_items: { invoice: :transactions }})
     .where('invoices.status = ?', 'shipped')
