@@ -195,4 +195,41 @@ describe 'Merchants API' do
       end
     end
   end
+
+  describe 'Total revenue for a given merchant' do
+    before :each do
+      @customer1 = create(:customer)
+      @merchant1 = create(:merchant)
+      @item1 = create(:item, merchant_id: @merchant1.id)
+      @invoice1 = create(:invoice, merchant_id: @merchant1.id, customer_id: @customer1.id)
+      create(:invoice_item, item_id: @item1.id, invoice_id: @invoice1.id)
+      create(:transaction, invoice_id: @invoice1.id)
+      @invoice2 = create(:invoice, merchant_id: @merchant1.id, customer_id: @customer1.id)
+      create(:invoice_item, item_id: @item1.id, invoice_id: @invoice2.id)
+      create(:transaction, invoice_id: @invoice2.id)
+      @merchant2 = create(:merchant)
+      @item2 = create(:item, merchant_id: @merchant2.id)
+      @invoice3 = create(:invoice, merchant_id: @merchant2.id, customer_id: @customer1.id)
+      create(:invoice_item, unit_price: 100.99, item_id: @item2.id, invoice_id: @invoice3.id)
+      create(:transaction, invoice_id: @invoice3.id)
+      @invoice4 = create(:invoice, merchant_id: @merchant2.id, customer_id: @customer1.id)
+      create(:invoice_item, item_id: @item2.id, invoice_id: @invoice4.id)
+      create(:transaction, invoice_id: @invoice4.id)
+    end
+
+    it 'sends back the total revenue for a single merchant' do
+      get "/api/v1/revenue/merchants/#{@merchant1.id}"
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant.count).to eq(1)
+      expect(merchant[:data]).to have_key(:id)
+      expect(merchant[:data][:id]).to be_a(String)
+      expect(merchant[:data]).to have_key(:type)
+      expect(merchant[:data][:type]).to eq('merchant_revenue')
+      expect(merchant[:data]).to have_key(:attributes)
+      expect(merchant[:data][:attributes]).to be_a(Hash)
+      expect(merchant[:data][:attributes]).to have_key(:revenue)
+      expect(merchant[:data][:attributes][:revenue]).to be_a(Float)
+    end
+  end
 end
