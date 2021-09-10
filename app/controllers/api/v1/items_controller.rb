@@ -18,6 +18,17 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
+  def update
+    item = Item.find(params[:id])
+    if item.update(item_params)
+      render status: :accepted, json: ItemSerializer.new(item)
+    elsif Merchant.where(id: params[:merchant_id]) == []
+      render json: { error: "merchant does not exist" }, status: :not_found
+    else
+      render json: { error: "must provide valid data" }, status: :not_acceptable
+    end
+  end
+
   private
   def item_params
     params.permit(:name, :description, :unit_price, :merchant_id)

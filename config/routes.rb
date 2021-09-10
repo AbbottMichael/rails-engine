@@ -16,7 +16,7 @@ Rails.application.routes.draw do
 
       resources :merchants, only: [:index, :show]
 
-      resources :items, only: [:index, :show, :create]
+      resources :items, only: [:index, :show, :create, :update]
 
       namespace :revenue do
         get '/merchants',     to: 'search_merchant#index'
