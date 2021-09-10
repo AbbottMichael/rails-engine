@@ -95,11 +95,11 @@ describe 'Merchants API' do
       expect(merchant[:data][:attributes][:name]).to eq(@merchant2.name)
     end
 
-    it "sends back 'no matches' if no merchants are found"
+    # it "sends back 'no matches' if no merchants are found"
 
-    it 'parameter cannot be empty'
+    # it 'parameter cannot be empty'
 
-    it 'parameter cannot be missing'
+    # it 'parameter cannot be missing'
   end
 
   describe 'Merchants with the most revenue' do
