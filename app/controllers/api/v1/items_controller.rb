@@ -18,14 +18,19 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
+  def destroy
+    item = Item.where(id: params[:id])
+    (item == []) ? (no_record_error) : (item[0].destroy)
+  end
+
   def update
     item = Item.find(params[:id])
     if item.update(item_params)
       render status: :accepted, json: ItemSerializer.new(item)
     elsif Merchant.where(id: params[:merchant_id]) == []
-      render json: { error: "merchant does not exist" }, status: :not_found
+      no_merchant_error
     else
-      render json: { error: "must provide valid data" }, status: :not_acceptable
+      invalid_data_error
     end
   end
 
@@ -38,5 +43,21 @@ class Api::V1::ItemsController < ApplicationController
     @per_page = params.fetch(:per_page, 20).to_i
     @page = params.fetch(:page, 0).to_i
     @page = @page - 1 unless @page == 0
+  end
+
+  def invalid_data_error
+    render json: { error: "must provide valid data" }, status: :not_acceptable
+  end
+
+  def no_merchant_error
+    render json: { error: "merchant does not exist" }, status: :not_found
+  end
+
+  def id_error
+    render json: { error: "must provide a valid id" }, status: :bad_request
+  end
+
+  def no_record_error
+    render json: { error: "record can not be found" }, status: :not_found
   end
 end
